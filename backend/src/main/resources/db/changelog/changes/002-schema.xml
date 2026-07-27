@@ -12,6 +12,7 @@
  OBSERVE: After boot: \dt on Postgres lists 8 tables (+ databasechangelog).
  ============================================================================
 -->
+
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

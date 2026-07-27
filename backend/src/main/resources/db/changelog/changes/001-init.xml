@@ -11,6 +11,7 @@
  OBSERVE: After boot, `SELECT * FROM databasechangelog` shows id=001-init.
  ============================================================================
 -->
+
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
