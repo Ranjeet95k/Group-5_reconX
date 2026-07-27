@@ -257,5 +257,3 @@ A 20-minute end-to-end walkthrough:
 ---
 
 ## Good luck — and ask your instructors anything 🏦
-# day1
-
