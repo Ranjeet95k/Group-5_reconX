@@ -1,17 +1,31 @@
 -- ============================================================================
 -- TICKET-ADV010 — VWAP per instrument per day (window function)
 -- ============================================================================
-SELECT DISTINCT
-    t.instrument_id,
-    t.trade_date,
-    SUM(t.price * t.quantity) OVER (PARTITION BY t.instrument_id, t.trade_date)
-        / NULLIF(SUM(t.quantity) OVER (PARTITION BY t.instrument_id, t.trade_date), 0)
-            AS vwap
-FROM trades t
-WHERE t.deleted_at IS NULL
-  AND t.asset_class = 'EQUITY'
-ORDER BY t.trade_date DESC, t.instrument_id;
+select 
+t.trade_ref,
+t.trade_date,
+i.symbol,
+t.quantity,
+t.price,
 
+t.price*t.quantity as notional,
+
+SUM(t.price*t.quantity) over (
+    PARTITION by t.instrument_id, t.trade_date
+)/ nullif(
+    SUM(
+        t.quantity
+    ) over(
+        partition by t.instrument_id, t.trade_id
+    ),0
+) as VWAP
+
+from trades t join instruments i ON i.id=t.instrument_id
+
+where t.deleted_at is NULL
+ORDER BY
+t.trade_date desc,
+t.instrument_id;
 
 -- ============================================================================
 -- TICKET-ADV011 — Recursive CTE: trade lifecycle (execution -> settlement
