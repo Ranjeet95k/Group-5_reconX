@@ -1,7 +1,7 @@
 # ReconX — Enterprise Trade Reconciliation Platform (Student Starter)
 
-> Deutsche Bank — TDI 2026 Graduate Technical Training Programme
-> **Advanced Track (Intermediate-Hybrid)** | 10-Day Case Study | Version 1.0
+>Deutsche Bank — TDI 2026 Graduate Technical Training Programme
+>**Advanced Track (Intermediate-Hybrid)** | 10-Day Case Study | Version 1.0
 
 This repository is the **starter scaffold** for the ReconX case study. Each day
 of the programme adds another layer to the system. By Day 10 you and your team
@@ -257,3 +257,5 @@ A 20-minute end-to-end walkthrough:
 ---
 
 ## Good luck — and ask your instructors anything 🏦
+# day1
+
