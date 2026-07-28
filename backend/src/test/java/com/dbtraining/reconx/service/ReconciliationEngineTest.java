@@ -52,11 +52,24 @@ void testReconcile_priceTolerance_withinThreshold() {
 }
 
     @Test
-    void testReconcile_missingCounterpartyTrade_returnsBreak() {
-        // TODO(TICKET-ADV042): internal trade with no external counterpart -> status BREAK,
-        //                     discrepancyType = "MISSING_EXTERNAL".
-        org.junit.jupiter.api.Assertions.fail("TICKET-ADV042 not implemented yet");
-    }
+void testReconcile_missingCounterpartyTrade_returnsBreak() {
+    // given
+    var in = List.<TradeType>of(
+            equity("EQU-20260603-0003", "100.00", "10"));
+
+    var out = List.<TradeType>of();
+
+    // when
+    List<ReconResult> results =
+            engine.reconcile(in, out, ReconciliationRule.EXACT);
+
+    // then
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).status())
+            .isEqualTo(ReconResult.Status.BREAK);
+    assertThat(results.get(0).discrepancyType())
+            .isEqualTo("MISSING_EXTERNAL");
+}
 
     @Test
 void testReconcile_emptyInternal_returnsEmpty() {
