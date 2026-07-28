@@ -31,6 +31,8 @@ t.instrument_id;
 -- TICKET-ADV011 — Recursive CTE: trade lifecycle (execution -> settlement
 --                -> recon_break -> resolution)
 -- ============================================================================
+
+
 WITH RECURSIVE trade_lifecycle AS (
     -- anchor: every trade in its execution state
     SELECT
@@ -63,7 +65,6 @@ WITH RECURSIVE trade_lifecycle AS (
 )
 SELECT * FROM trade_lifecycle
 ORDER BY trade_id, step;
-
 
 -- ============================================================================
 -- ADV008 — REFRESH the daily-summary materialised view (concurrent so it can
