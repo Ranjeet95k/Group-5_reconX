@@ -16,10 +16,6 @@ import java.util.stream.Collectors;
 /**
  * ============================================================================
  * TICKET-ADV033 — ReconciliationEngine using Streams (parallel matching)
- * TICKET-ADV037 — CompletableFuture: parallel recon by counterparty
- * TICKET-ADV047 — Edge cases: empty/single/all-mismatched inputs handled
- * TICKET-ADV084 — @Timed exports reconciliation_duration_seconds histogram
- *
  * WHAT:    Compares internal trades against external (counterparty) trades and
  *          returns a ReconResult per internal trade (MATCHED or BREAK).
  * HOW:     Index externals by tradeRef, then stream internals and look each
@@ -39,16 +35,16 @@ public class ReconciliationEngine {
     public List<ReconResult> reconcile(List<TradeType> internal,
                                        List<TradeType> external,
                                        ReconciliationRule rule) {
-        // TODO(TICKET-ADV033): build a Map<tradeRef, TradeType> from `external`
-        //   (O(1) lookups beat O(n*m) nested iteration), then parallelStream
-        //   over `internal` and call matchOne(in, externalByRef.get(...), rule)
-        //   for each. Guard against null/empty inputs (TICKET-ADV047).
-        //   HINT:
-        //     Map<String, TradeType> externalByRef = external.stream()
-        //         .collect(Collectors.toMap(t -> t.tradeRef().value(), Function.identity(), (a, b) -> a));
-        //     return internal.parallelStream()
-        //         .map(in -> matchOne(in, externalByRef.get(in.tradeRef().value()), rule))
-        //         .toList();
+        if (internal == null || internal.isEmpty()) return List.of();
+        List<TradeType> ext = external == null ? List.of() : external;
+        Map<String, TradeType> externalByRef = ext.stream()
+                .collect(Collectors.toMap(
+                        t -> t.tradeRef().value(),
+                        Function.identity(),
+                        (a, b) -> a));
+        return internal.parallelStream()
+                .map(in -> matchOne(in, externalByRef.get(in.tradeRef().value()), rule))
+                .toList();
         throw new UnsupportedOperationException("TICKET-ADV033");
     }
 
