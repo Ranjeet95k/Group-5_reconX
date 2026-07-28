@@ -11,6 +11,7 @@
           users → 4 (admin/trader/viewer/recon analyst).
  ============================================================================
 -->
+
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
