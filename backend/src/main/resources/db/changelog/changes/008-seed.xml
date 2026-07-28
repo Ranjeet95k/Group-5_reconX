@@ -23,6 +23,139 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+
+    <changeSet id="008-seed-data" author="prerana" context="dev,test">
+
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <dbms type="postgresql"/>
+                <tableExists tableName="counterparties"/>
+                <tableExists tableName="instruments"/>
+                <tableExists tableName="trades"/>
+            </and>
+        </preConditions>
+
+
+        <!-- Seed 10 counterparties -->
+        <sql>
+
+            INSERT INTO counterparties
+            (name, lei_code, region)
+            VALUES
+            ('Apex Brokers Inc','5493001ABCDE12345001','NAMR'),
+            ('Vertex Securities LLC','5493001ABCDE12345002','NAMR'),
+            ('Helix Capital Markets','5493001ABCDE12345003','APAC'),
+            ('Aurora Markets SA','5493001ABCDE12345004','LATAM'),
+            ('Borealis Trading GmbH','5493001ABCDE12345005','EMEA'),
+            ('Cascadia Investments PLC','5493001ABCDE12345006','EMEA'),
+            ('Delphi Asset Management','5493001ABCDE12345007','EMEA'),
+            ('Equinox Securities Pty','5493001ABCDE12345008','APAC'),
+            ('Fjord Capital Partners','5493001ABCDE12345009','EMEA'),
+            ('Granite Hill Brokers','5493001ABCDE12345010','NAMR');
+
+
+            <!-- 5 fixed instruments -->
+
+            INSERT INTO instruments
+            (
+                symbol,
+                name,
+                asset_class,
+                currency,
+                isin,
+                metadata
+            )
+            VALUES
+            ('SAP.DE','SAP SE','EQUITY','EUR','DE0007164600','{"sector":"Technology"}'),
+            ('US10Y','US Treasury','FIXED_INCOME','USD','US912828F622','{"tenor":"10Y"}'),
+            ('EURUSD','Euro Dollar','FX','USD',NULL,'{"pair":"EURUSD"}'),
+            ('XAU','Gold','COMMODITY','USD',NULL,'{"unit":"ounce"}'),
+            ('CL_FUT','WTI Oil','DERIVATIVE','USD',NULL,'{"type":"future"}');
+
+
+            <!-- 45 generated instruments -->
+
+            INSERT INTO instruments
+            (
+                symbol,
+                name,
+                asset_class,
+                currency,
+                metadata
+            )
+
+            SELECT
+                'GEN'||LPAD(n::TEXT,4,'0'),
+                'Generated Instrument '||n,
+                (ARRAY[
+                    'EQUITY',
+                    'FIXED_INCOME',
+                    'FX',
+                    'COMMODITY',
+                    'DERIVATIVE'
+                ])[1+(n%5)],
+
+                (ARRAY[
+                    'USD',
+                    'EUR',
+                    'GBP',
+                    'JPY',
+                    'CHF'
+                ])[1+(n%5)],
+
+                jsonb_build_object(
+                    'generated',true
+                )
+
+            FROM generate_series(1,45) n;
+
+
+
+            <!-- 500 trades -->
+
+            INSERT INTO trades
+            (
+                trade_ref,
+                instrument_id,
+                counterparty_id,
+                quantity,
+                price,
+                trade_date,
+                status
+            )
+
+            SELECT
+
+                'TRD-2026-'||LPAD(n::TEXT,6,'0'),
+
+                1+(n%50),
+
+                1+(n%10),
+
+                ROUND((100 + n * 10.25)::numeric,4),
+
+ROUND((10 + n * 1.75)::numeric,4),
+
+                DATE '2026-04-01'
+                +(n%120)*INTERVAL '1 day',
+
+                (ARRAY[
+                    'PENDING',
+                    'MATCHED',
+                    'UNMATCHED',
+                    'DISPUTED'
+                ])
+                [1+(n%4)]
+
+            FROM generate_series(1,500) n;
+
+
+        </sql>
+
+
             http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
@@ -159,7 +292,11 @@
 
 
         <rollback>
-            <sql>DELETE FROM users;</sql>
+            <sql>
+                DELETE FROM trades;
+                DELETE FROM instruments;
+                DELETE FROM counterparties;
+            </sql>
         </rollback>
 
 
