@@ -18,10 +18,22 @@ class ReconciliationEngineTest {
     private final ReconciliationEngine engine = new ReconciliationEngine();
 
     @Test
-    void testReconcile_exactMatch_returnsMatched() {
-        // TODO(TICKET-ADV040): two identical EquityTrades + EXACT rule -> one ReconResult with status MATCHED.
-        org.junit.jupiter.api.Assertions.fail("TICKET-ADV040 not implemented yet");
-    }
+void testReconcile_exactMatch_returnsMatched() {
+    // given
+    var in = List.<TradeType>of(equity("EQU-20260603-0001", "100.00", "10"));
+    var out = List.<TradeType>of(equity("EQU-20260603-0001", "100.00", "10"));
+
+    // when
+    List<ReconResult> results =
+            engine.reconcile(in, out, ReconciliationRule.EXACT);
+
+    // then
+    assertThat(results).hasSize(1);
+    assertThat(results.get(0).status())
+            .isEqualTo(ReconResult.Status.MATCHED);
+    assertThat(results.get(0).tradeRef())
+            .isEqualTo("EQU-20260603-0001");
+}
 
     @Test
     void testReconcile_priceTolerance_withinThreshold() {
@@ -37,10 +49,18 @@ class ReconciliationEngineTest {
     }
 
     @Test
-    void testReconcile_emptyInternal_returnsEmpty() {
-        // TODO(TICKET-ADV040): empty internal + empty external -> reconcile returns an empty list.
-        org.junit.jupiter.api.Assertions.fail("TICKET-ADV040 not implemented yet");
-    }
+void testReconcile_emptyInternal_returnsEmpty() {
+    // given
+    List<TradeType> in = List.of();
+    List<TradeType> out = List.of();
+
+    // when
+    List<ReconResult> results =
+            engine.reconcile(in, out, ReconciliationRule.EXACT);
+
+    // then
+    assertThat(results).isEmpty();
+}
 
     private EquityTrade equity(String ref, String price, String qty) {
         return EquityTrade.builder()
