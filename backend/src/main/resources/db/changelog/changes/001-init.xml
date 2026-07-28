@@ -18,7 +18,14 @@
                             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
     <changeSet id="001-init-tag" author="trainer">
-        <tagDatabase tag="v1.0.0-init"/>
-    </changeSet>
+
+    <!-- Tag operation should only run when DATABASECHANGELOG exists -->
+    <preConditions onFail="HALT">
+        <tableExists tableName="databasechangelog"/>
+    </preConditions>
+
+    <tagDatabase tag="v1.0.0-init"/>
+
+</changeSet>
 
 </databaseChangeLog>
