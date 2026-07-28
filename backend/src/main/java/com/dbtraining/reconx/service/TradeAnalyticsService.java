@@ -34,7 +34,6 @@ public class TradeAnalyticsService {
                         list.stream()
                                 .map(t -> t.notional().amount())
                                 .reduce(BigDecimal.ZERO, BigDecimal::add)))));
-        throw new UnsupportedOperationException("TICKET-ADV034");
     }
 
     /**
@@ -56,7 +55,6 @@ public class TradeAnalyticsService {
                             ? BigDecimal.ZERO
                             : totalPxQty.divide(totalQty, 6, RoundingMode.HALF_UP);
                 })));
-        throw new UnsupportedOperationException("TICKET-ADV035");
     }
 
     /** TICKET-ADV036 — P&L per instrument symbol (sign by Side). */
@@ -66,13 +64,11 @@ public class TradeAnalyticsService {
                 EquityTrade::instrumentSymbol,
                 Collectors.mapping(this::pnl,
                         Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))));
-        throw new UnsupportedOperationException("TICKET-ADV036");
     }
 
     private BigDecimal pnl(EquityTrade t) {
         BigDecimal abs = t.price().multiply(t.quantity());
         return t.side() == Side.SELL ? abs : abs.negate();
-        throw new UnsupportedOperationException("TICKET-ADV036");
     }
 
     private long counterpartyIdOf(TradeType t) {
@@ -82,7 +78,6 @@ public class TradeAnalyticsService {
             case BondTrade b       -> b.counterpartyId();
             case DerivativeTrade d -> d.counterpartyId();
         };
-        throw new UnsupportedOperationException("TICKET-ADV018");
     }
 
     public record NotionalSummary(long count, BigDecimal total) {}
