@@ -4,10 +4,9 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Objects;
 
-
 /**
  * ============================================================================
- * TICKET-ADV024 — Immutable value object: Money
+ * Immutable value object: Money
  *
  * WHAT:    Record bundling a {@link BigDecimal} amount with a {@link Currency}.
  *          Used everywhere a monetary value crosses a boundary (DTO, event,
@@ -42,13 +41,14 @@ public record Money(BigDecimal amount, Currency currency) {
 
     /** Add another Money of the same currency. Throws on currency mismatch. */
     public Money plus(Money other) {
-        // TODO(TICKET-ADV024): validate same currency, then return a new Money
-        //                     whose amount = this.amount + other.amount.
-        throw new UnsupportedOperationException("TICKET-ADV024");
+        if (!this.currency.equals(other.currency)) {
+            throw new IllegalArgumentException(
+                    "Cannot add %s to %s — currency mismatch".formatted(other.currency, this.currency));
+        }
+        return new Money(this.amount.add(other.amount), this.currency);
     }
 
     public Money times(BigDecimal multiplier) {
-        // TODO(TICKET-ADV024): return a new Money whose amount = this.amount * multiplier.
-        throw new UnsupportedOperationException("TICKET-ADV024");
+        return new Money(this.amount.multiply(multiplier), this.currency);
     }
 }
