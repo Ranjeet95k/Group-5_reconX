@@ -7,7 +7,6 @@ import java.time.LocalDate;
 
 /**
  * ============================================================================
- * TICKET-ADV053 — TradeRequest DTO (POST body)
  * TICKET-ADV029 — JSR-380 validation annotations live on the DTO, not the entity
  *
  * WHY:    Putting @Pattern/@Positive/@NotNull on the JPA entity couples
@@ -15,6 +14,8 @@ import java.time.LocalDate;
  *         it before mapping.
  * ============================================================================
  */
+
+
 public record TradeRequest(
         @NotNull
         @Pattern(regexp = "^[A-Z]{3}-\\d{8}-\\d{4}$",
