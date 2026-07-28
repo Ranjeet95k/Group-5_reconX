@@ -1,5 +1,6 @@
 -- ============================================================================
 -- Convert trades to monthly range-partitioned table (Postgres)
+-- TICKET-ADV007 — Convert trades to monthly range-partitioned table (Postgres)
 --
 -- WARNING: destructive. Run in a maintenance window — copies the entire
 -- trades table into a new partitioned trades, then renames.
@@ -38,4 +39,5 @@ CREATE TABLE trades_y2026m07 PARTITION OF trades
 INSERT INTO trades SELECT * FROM trades_legacy;
 
 -- 5. Drop legacy table after verification
+-- DROP TABLE trades_legacy;
 -- DROP TABLE trades_legacy;
