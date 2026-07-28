@@ -48,9 +48,18 @@ public final class DerivativeTrade implements TradeType {
     public Currency currency()       { return currency; }
     public Side side()               { return side; }
     public long counterpartyId()     { return counterpartyId; }
+
     @Override public boolean equals(Object o) {
     return (o instanceof DerivativeTrade other) && tradeRef.equals(other.tradeRef);
-}
+    }   
+
+    @Override public String toString() {
+    return "DerivativeTrade[ref=%s, %s %s on %s, strike=%s %s, qty=%s, expiry=%s, side=%s]"
+            .formatted(tradeRef, optionType, underlying, tradeDate, strike,
+                       currency.getCurrencyCode(), quantity, expiry, side);
+    }
+
+
 @Override public int hashCode() { return tradeRef.hashCode(); }
     public static final class Builder {
         private TradeRef tradeRef;
