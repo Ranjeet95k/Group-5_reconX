@@ -9,6 +9,7 @@
  OBSERVE: Postgres applies partitioning changes; H2 skips this changeset.
  ============================================================================
 -->
+
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -36,6 +37,10 @@
         </sql>
 
 
+        <comment>Placeholder: students rebuild this in ADV007. Trainer copy
+                 ships a no-op so dev/uat boot cleanly.</comment>
+        <sql>SELECT 1;</sql>
+        
         <rollback>
             <sql>
                 SELECT 1;
