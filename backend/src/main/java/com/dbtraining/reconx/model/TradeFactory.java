@@ -34,8 +34,16 @@ public final class TradeFactory {
      *   3. The switch must be exhaustive — every TradeType.AssetClass case handled.
      */
     public static TradeType create(String assetClass, Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
-    }
+    TradeType.AssetClass type =
+            TradeType.AssetClass.valueOf(assetClass.toUpperCase());
+
+    return switch (type) {
+        case EQUITY -> equity(p);
+        case FX -> fx(p);
+        case BOND -> bond(p);
+        case DERIVATIVE -> derivative(p);
+    };
+}
 
     /**
      * TODO(TICKET-ADV023):
@@ -43,8 +51,17 @@ public final class TradeFactory {
      *   quantity, price, currency, side, tradeDate, counterpartyId.
      */
     private static EquityTrade equity(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
-    }
+    return EquityTrade.builder()
+            .tradeRef(TradeRef.of((String) p.get("tradeRef")))
+            .instrumentSymbol((String) p.get("symbol"))
+            .quantity((BigDecimal) p.get("quantity"))
+            .price((BigDecimal) p.get("price"))
+            .currency((String) p.get("currency"))
+            .side(Side.valueOf(((String) p.get("side")).toUpperCase()))
+            .tradeDate((LocalDate) p.get("tradeDate"))
+            .counterpartyId(((Number) p.get("counterpartyId")).longValue())
+            .build();
+}
 
     /**
      * TODO(TICKET-ADV023):
@@ -52,8 +69,17 @@ public final class TradeFactory {
      *   notionalCcy1, fxRate, side, tradeDate, counterpartyId.
      */
     private static FXTrade fx(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
-    }
+    return FXTrade.builder()
+            .tradeRef(TradeRef.of((String) p.get("tradeRef")))
+            .ccy1((String) p.get("ccy1"))
+            .ccy2((String) p.get("ccy2"))
+            .notionalCcy1((BigDecimal) p.get("notionalCcy1"))
+            .fxRate((BigDecimal) p.get("fxRate"))
+            .side(Side.valueOf(((String) p.get("side")).toUpperCase()))
+            .tradeDate((LocalDate) p.get("tradeDate"))
+            .counterpartyId(((Number) p.get("counterpartyId")).longValue())
+            .build();
+}
 
     /**
      * TODO(TICKET-ADV023):
@@ -62,8 +88,18 @@ public final class TradeFactory {
      *   counterpartyId.
      */
     private static BondTrade bond(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
-    }
+    return BondTrade.builder()
+            .tradeRef(TradeRef.of((String) p.get("tradeRef")))
+            .isin((String) p.get("isin"))
+            .faceValue((BigDecimal) p.get("faceValue"))
+            .couponRate((BigDecimal) p.get("couponRate"))
+            .maturityDate((LocalDate) p.get("maturityDate"))
+            .currency((String) p.get("currency"))
+            .side(Side.valueOf(((String) p.get("side")).toUpperCase()))
+            .tradeDate((LocalDate) p.get("tradeDate"))
+            .counterpartyId(((Number) p.get("counterpartyId")).longValue())
+            .build();
+}
 
     /**
      * TODO(TICKET-ADV023):
@@ -72,6 +108,18 @@ public final class TradeFactory {
      *   tradeDate, counterpartyId.
      */
     private static DerivativeTrade derivative(Map<String, Object> p) {
-        throw new UnsupportedOperationException("TICKET-ADV023");
-    }
+    return DerivativeTrade.builder()
+            .tradeRef(TradeRef.of((String) p.get("tradeRef")))
+            .underlying((String) p.get("underlying"))
+            .strike((BigDecimal) p.get("strike"))
+            .quantity((BigDecimal) p.get("quantity"))
+            .expiry((LocalDate) p.get("expiry"))
+            .optionType(DerivativeTrade.OptionType.valueOf(
+                    ((String) p.get("optionType")).toUpperCase()))
+            .currency((String) p.get("currency"))
+            .side(Side.valueOf(((String) p.get("side")).toUpperCase()))
+            .tradeDate((LocalDate) p.get("tradeDate"))
+            .counterpartyId(((Number) p.get("counterpartyId")).longValue())
+            .build();
+}
 }
