@@ -1,6 +1,10 @@
 package com.dbtraining.reconx.service;
 
+import com.dbtraining.reconx.model.BondTrade;
+import com.dbtraining.reconx.model.DerivativeTrade;
 import com.dbtraining.reconx.model.EquityTrade;
+import com.dbtraining.reconx.model.FXTrade;
+import com.dbtraining.reconx.model.Side;
 import com.dbtraining.reconx.model.TradeType;
 import org.springframework.stereotype.Service;
 
@@ -57,14 +61,17 @@ public class TradeAnalyticsService {
 
     /** TICKET-ADV036 — P&L per instrument symbol (sign by Side). */
     public Map<String, BigDecimal> pnlByInstrument(List<EquityTrade> equityTrades) {
-        // TODO(TICKET-ADV036): groupingBy(EquityTrade::instrumentSymbol,
-        //   mapping(this::pnl, reducing(BigDecimal.ZERO, BigDecimal::add))).
-        //   Side.SELL contributes positively; Side.BUY contributes negatively.
+        if (equityTrades == null || equityTrades.isEmpty()) return Map.of();
+        return equityTrades.stream().collect(Collectors.groupingBy(
+                EquityTrade::instrumentSymbol,
+                Collectors.mapping(this::pnl,
+                        Collectors.reducing(BigDecimal.ZERO, BigDecimal::add))));
         throw new UnsupportedOperationException("TICKET-ADV036");
     }
 
     private BigDecimal pnl(EquityTrade t) {
-        // TODO(TICKET-ADV036): BigDecimal abs = price * qty; SELL -> abs, BUY -> abs.negate().
+        BigDecimal abs = t.price().multiply(t.quantity());
+        return t.side() == Side.SELL ? abs : abs.negate();
         throw new UnsupportedOperationException("TICKET-ADV036");
     }
 
