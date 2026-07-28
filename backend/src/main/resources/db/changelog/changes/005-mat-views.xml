@@ -36,6 +36,7 @@
             CREATE UNIQUE INDEX uq_mv_daily_recon_summary_trade_date
                 ON mv_daily_recon_summary (trade_date);
         ]]></sql>
+
         <rollback>
             <sql>DROP MATERIALIZED VIEW IF EXISTS mv_daily_recon_summary;</sql>
         </rollback>
