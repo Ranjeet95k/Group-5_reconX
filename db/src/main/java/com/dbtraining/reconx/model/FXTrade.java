@@ -33,6 +33,10 @@ public final class FXTrade implements TradeType {
     @Override public LocalDate tradeDate()   { return tradeDate; }
     @Override public AssetClass assetClass() { return AssetClass.FX; }
     @Override public Money notional()        { return new Money(notionalCcy1.multiply(fxRate), ccy2); }
+    @Override public boolean equals(Object o) {
+    return (o instanceof FXTrade other) && tradeRef.equals(other.tradeRef);
+}
+@Override public int hashCode() { return tradeRef.hashCode(); }
 
     public Currency ccy1()           { return ccy1; }
     public Currency ccy2()           { return ccy2; }
