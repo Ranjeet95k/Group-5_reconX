@@ -87,21 +87,32 @@ public class ReconciliationEngine {
 }
 
     private ReconResult matchOne(TradeType internal, TradeType external, ReconciliationRule rule) {
-        // TODO(TICKET-ADV033): if external is null return ReconResult.breakResult(ref, "MISSING_EXTERNAL", ...).
-        //   Otherwise pull priceQty() for both sides, compare via rule.matches(...),
-        //   return ReconResult.matched(ref) or breakResult(ref, "VALUE_MISMATCH", details).
+        String ref = internal.tradeRef().value();
+        if (external == null) {
+            return ReconResult.breakResult(ref, "MISSING_EXTERNAL",
+                    "no external trade found for " + ref);
+        }
+        BigDecimal[] in  = priceQty(internal);
+        BigDecimal[] out = priceQty(external);
+        if (rule.matches(in[0], in[1], out[0], out[1])) {
+            return ReconResult.matched(ref);
+        }
+        return ReconResult.breakResult(ref, "VALUE_MISMATCH",
+                "internal price=%s qty=%s vs external price=%s qty=%s"
+                        .formatted(in[0], in[1], out[0], out[1]));
         throw new UnsupportedOperationException("TICKET-ADV033");
     }
 
     /** TICKET-ADV018 — exhaustive switch over the sealed hierarchy. */
     private BigDecimal[] priceQty(TradeType t) {
-        // TODO(TICKET-ADV018): switch over the sealed TradeType hierarchy
-        //   (EquityTrade, FXTrade, BondTrade, DerivativeTrade) and return a
-        //   BigDecimal[]{price, qty}. The compiler enforces exhaustiveness —
-        //   omit a case and the build fails.
+        return switch (t) {
+                    case EquityTrade e     -> new BigDecimal[]{e.price(),  e.quantity()};
+                    case FXTrade fx        -> new BigDecimal[]{fx.fxRate(), fx.notionalCcy1()};
+                    case BondTrade b       -> new BigDecimal[]{b.couponRate(), b.faceValue()};
+                    case DerivativeTrade d -> new BigDecimal[]{d.strike(), d.quantity()};
+                };
         throw new UnsupportedOperationException("TICKET-ADV018");
     }
-    public void shutdown() {
-    executor.shutdown();
 }
+
 }
