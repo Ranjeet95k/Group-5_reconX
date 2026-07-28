@@ -1,5 +1,6 @@
 package com.dbtraining.reconx.exception;
 
+
 /**
  * ============================================================================
  * TICKET-ADV025 — Root of the exception hierarchy
