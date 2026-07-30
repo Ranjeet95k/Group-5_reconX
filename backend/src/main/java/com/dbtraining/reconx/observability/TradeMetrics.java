@@ -52,7 +52,6 @@ public class TradeMetrics {
                 .publishPercentileHistogram()
                 .register(registry);
 
-        // TICKET-ADV085 — polled gauge wrapping a repository count.
         Gauge.builder("recon_break_count", breakRepo, r -> r.countByStatus("OPEN"))
                 .description("Open recon breaks")
                 .register(registry);
