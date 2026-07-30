@@ -10,6 +10,7 @@ import com.dbtraining.reconx.repository.InstrumentRepository;
 import com.dbtraining.reconx.repository.TradeRepository;
 import com.dbtraining.reconx.repository.entity.Trade;
 import com.dbtraining.reconx.dto.TradeEvent;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -48,6 +49,7 @@ public class TradeService {
                         InstrumentRepository instRepo,
                         TradeEventProducer events,
                         TradeMetrics metrics) {
+
         this.tradeRepo = tradeRepo;
         this.cpRepo = cpRepo;
         this.instRepo = instRepo;
@@ -55,34 +57,36 @@ public class TradeService {
         this.metrics = metrics;
     }
 
+
     public Trade create(TradeRequest req, String actor) {
-        // TODO(TICKET-ADV064): reject duplicate tradeRef via DuplicateTradeRefException,
-        //   build a new Trade with instrument + counterparty looked up from
-        //   their repos (throw TradeNotFoundException on miss), status = "PENDING",
-        //   save, then:
-        //     - metrics.incrementTradeCreated() + metrics.recordTradeValue(qty*price) — TICKET-ADV083
-        //     - events.publish(new TradeEvent(... TRADE_CREATED ... actor ...)) — TICKET-ADV129
+        // TODO(TICKET-ADV064)
         throw new UnsupportedOperationException("TICKET-ADV064");
     }
 
+
     public Trade update(Long id, TradeRequest req, String actor) {
-        // TODO(TICKET-ADV065): load by id (throw TradeNotFoundException if missing),
-        //   copy mutable fields from req, save, publish a TRADE_UPDATED event.
+        // TODO(TICKET-ADV065)
         throw new UnsupportedOperationException("TICKET-ADV065");
     }
 
+
     public Trade updateStatus(Long id, String status, String actor) {
-        // TODO(TICKET-ADV066): load, setStatus(status), save, publish TRADE_UPDATED
-        //   with the new status in the "after" slot of the event.
+        // TODO(TICKET-ADV066)
         throw new UnsupportedOperationException("TICKET-ADV066");
     }
 
+
     public void softDelete(Long id, String actor) {
-        // TODO(TICKET-ADV067): load, call t.softDelete() (sets deleted_at), save,
-        //   publish a TRADE_CANCELLED event.
+        // TODO(TICKET-ADV067)
         throw new UnsupportedOperationException("TICKET-ADV067");
     }
 
+
+    /**
+     * TICKET-ADV055
+     * TICKET-ADV056
+     * Specification based dynamic filtering
+     */
     @Transactional(readOnly = true)
 public Page<Trade> list(LocalDate from,
                         LocalDate to,
