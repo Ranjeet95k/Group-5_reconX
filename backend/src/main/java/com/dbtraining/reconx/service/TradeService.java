@@ -23,6 +23,17 @@ import java.util.UUID;
 
 import static com.dbtraining.reconx.repository.TradeSpecification.*;
 
+/**
+ * ============================================================================
+ * TICKET-ADV064 — TradeService.create (POST endpoint backing)
+ * TICKET-ADV065 — update
+ * TICKET-ADV066 — updateStatus (PATCH)
+ * TICKET-ADV067 — softDelete
+ * TICKET-ADV083 — increments trade_created_total Counter on create
+ * TICKET-ADV129 — publishes TradeEvent on every state change
+ * TICKET-ADV055/ADV056 — list() uses Specifications + filter query
+ * ============================================================================
+ */
 @Service
 @Transactional
 public class TradeService {
@@ -77,17 +88,17 @@ public class TradeService {
      * Specification based dynamic filtering
      */
     @Transactional(readOnly = true)
-    public Page<Trade> list(LocalDate from,
-                            LocalDate to,
-                            String status,
-                            Long counterpartyId,
-                            Pageable pageable) {
+public Page<Trade> list(LocalDate from,
+                        LocalDate to,
+                        String status,
+                        Long counterpartyId,
+                        Pageable pageable) {
 
-        Specification<Trade> spec =
-                Specification.where(tradeDateBetween(from, to))
-                        .and(hasStatus(status))
-                        .and(forCounterparty(counterpartyId));
+    Specification<Trade> spec =
+            Specification.where(tradeDateBetween(from, to))
+                    .and(hasStatus(status))
+                    .and(forCounterparty(counterpartyId));
 
-        return tradeRepo.findAll(spec, pageable);
-    }
+    return tradeRepo.findAll(spec, pageable);
+}
 }
