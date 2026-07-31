@@ -1,4 +1,5 @@
-// TICKET-ADV106 / ADV107 — EventSource live feed with prepend + slide-in animation.
+// File: static-dashboard/js/sse.js
+// TICKET-ADV104 / TICKET-ADV105 — EventSource live feed with prepend + slide-in animation.
 (function () {
   const feed = document.getElementById('trade-feed');
   if (!feed) return;
@@ -11,6 +12,7 @@
     { tradeRef: 'EQU-20260603-0002', symbol: 'AAPL',    qty: 500,  price: 178.20, status: 'BREAK' },
   ];
 
+  // File: static-dashboard/js/sse.js — TICKET-ADV105 (trainer source — inside the IIFE)
   function prepend(trade) {
     const el = document.createElement('article');
     el.className = 'trade-card trade-card--' + trade.status.toLowerCase();
