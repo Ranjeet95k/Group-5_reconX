@@ -100,3 +100,4 @@ body {
   body { grid-template-columns: 1fr; grid-template-areas: "header" "main" "footer"; }
   .layout__sidebar { display: none; }
 }
+}
