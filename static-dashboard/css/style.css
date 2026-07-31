@@ -4,6 +4,7 @@
    responsive breakpoints (desktop -> tablet -> mobile)
    BEM naming: block__element--modifier
    ============================================================================ */
+/* File: static-dashboard/css/style.css — top of file */
 :root {
   --color-primary: #003366;
   --color-gold:    #C8A951;
