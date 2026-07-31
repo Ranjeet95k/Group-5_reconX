@@ -12,6 +12,7 @@
     { tradeRef: 'EQU-20260603-0002', symbol: 'AAPL',    qty: 500,  price: 178.20, status: 'BREAK' },
   ];
 
+  // File: static-dashboard/js/sse.js — TICKET-ADV105 (trainer source — inside the IIFE)
   function prepend(trade) {
     const el = document.createElement('article');
     el.className = 'trade-card trade-card--' + trade.status.toLowerCase();
