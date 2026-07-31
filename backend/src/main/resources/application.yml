@@ -65,6 +65,7 @@ server:
 #  Custom metrics registered by com.dbtraining.reconx.observability.TradeMetrics
 #  scrape via /actuator/prometheus.
 # =============================================================================
+
 management:
   endpoints:
     web:
