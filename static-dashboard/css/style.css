@@ -125,3 +125,4 @@ body {
   margin-left: var(--space-2);
   vertical-align: middle;
 }
+.layout__footer  { grid-area: footer;  display: flex; align-items: center; justify-content: center; border-top: 1px solid var(--color-border); }
