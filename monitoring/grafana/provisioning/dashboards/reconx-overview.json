@@ -113,6 +113,7 @@
     },
     {
       "type": "timeseries",
+      "title": "Throughput: produced vs consumed (ADV141)",
       "title": "Consumer lag by topic (ADV140)",
       "datasource": {
         "type": "prometheus",
@@ -126,6 +127,7 @@
       ],
       "fieldConfig": {
         "defaults": {
+          "unit": "short"
           "unit": "short",
           "thresholds": {
             "mode": "absolute",
