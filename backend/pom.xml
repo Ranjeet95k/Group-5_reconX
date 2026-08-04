@@ -247,163 +247,234 @@
 
 
 
-    <build>
+ <build>
 
-        <plugins>
+    <plugins>
 
 
-            <!-- Spring Boot -->
-            <plugin>
+        <!-- Spring Boot Maven Plugin -->
+        <plugin>
 
-                <groupId>org.springframework.boot</groupId>
+            <groupId>org.springframework.boot</groupId>
 
-                <artifactId>spring-boot-maven-plugin</artifactId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
 
-            </plugin>
+        </plugin>
 
 
 
 
-            <!-- MapStruct Annotation Processing -->
-            <plugin>
+        <!-- MapStruct Annotation Processing -->
+        <plugin>
 
-                <groupId>org.apache.maven.plugins</groupId>
+            <groupId>org.apache.maven.plugins</groupId>
 
-                <artifactId>maven-compiler-plugin</artifactId>
+            <artifactId>maven-compiler-plugin</artifactId>
 
-                <configuration>
 
-                    <annotationProcessorPaths>
+            <configuration>
 
-                        <path>
+                <annotationProcessorPaths>
 
-                            <groupId>org.mapstruct</groupId>
+                    <path>
 
-                            <artifactId>mapstruct-processor</artifactId>
+                        <groupId>org.mapstruct</groupId>
 
-                            <version>${mapstruct.version}</version>
+                        <artifactId>mapstruct-processor</artifactId>
 
-                        </path>
+                        <version>${mapstruct.version}</version>
 
-                    </annotationProcessorPaths>
+                    </path>
 
-                </configuration>
+                </annotationProcessorPaths>
 
-            </plugin>
+            </configuration>
 
 
+        </plugin>
 
 
-            <!-- ================================================= -->
-            <!-- TICKET-ADV156 : JaCoCo Coverage Gate -->
-            <!-- Minimum Line Coverage = 85% -->
-            <!-- ================================================= -->
 
-            <plugin>
 
-                <groupId>org.jacoco</groupId>
 
-                <artifactId>jacoco-maven-plugin</artifactId>
+        <!-- ================================================= -->
+        <!-- TICKET-ADV156 : JaCoCo Coverage Gate -->
+        <!-- Minimum Line Coverage = 85% -->
+        <!-- ================================================= -->
 
-                <version>0.8.12</version>
+        <plugin>
 
+            <groupId>org.jacoco</groupId>
 
-                <executions>
+            <artifactId>jacoco-maven-plugin</artifactId>
 
+            <version>0.8.12</version>
 
-                    <!-- Attach JaCoCo agent -->
-                    <execution>
 
-                        <id>prepare-agent</id>
+            <executions>
 
-                        <goals>
 
-                            <goal>prepare-agent</goal>
+                <!-- Attach JaCoCo agent -->
+                <execution>
 
-                        </goals>
+                    <id>prepare-agent</id>
 
-                    </execution>
+                    <goals>
 
+                        <goal>prepare-agent</goal>
 
+                    </goals>
 
-                    <!-- Generate report -->
-                    <execution>
+                </execution>
 
-                        <id>jacoco-report</id>
 
-                        <phase>verify</phase>
 
-                        <goals>
+                <!-- Generate Coverage Report -->
+                <execution>
 
-                            <goal>report</goal>
+                    <id>jacoco-report</id>
 
-                        </goals>
+                    <phase>verify</phase>
 
-                    </execution>
+                    <goals>
 
+                        <goal>report</goal>
 
+                    </goals>
 
-                    <!-- Fail build below 85% -->
-                    <execution>
+                </execution>
 
-                        <id>jacoco-check</id>
 
-                        <phase>verify</phase>
 
-                        <goals>
+                <!-- Enforce 85% Coverage -->
+                <execution>
 
-                            <goal>check</goal>
+                    <id>jacoco-check</id>
 
-                        </goals>
+                    <phase>verify</phase>
 
+                    <goals>
 
-                        <configuration>
+                        <goal>check</goal>
 
-                            <rules>
+                    </goals>
 
-                                <rule>
 
-                                    <element>BUNDLE</element>
+                    <configuration>
 
+                        <rules>
 
-                                    <limits>
+                            <rule>
 
+                                <element>BUNDLE</element>
 
-                                        <limit>
 
-                                            <counter>LINE</counter>
+                                <limits>
 
-                                            <value>COVEREDRATIO</value>
 
-                                            <minimum>0.85</minimum>
+                                    <limit>
 
-                                        </limit>
+                                        <counter>LINE</counter>
 
+                                        <value>COVEREDRATIO</value>
 
-                                    </limits>
+                                        <minimum>0.85</minimum>
 
+                                    </limit>
 
-                                </rule>
 
-                            </rules>
+                                </limits>
 
 
-                        </configuration>
+                            </rule>
 
 
-                    </execution>
+                        </rules>
 
 
-                </executions>
+                    </configuration>
 
 
-            </plugin>
+                </execution>
 
 
-        </plugins>
+            </executions>
 
 
-    </build>
+        </plugin>
 
 
+
+
+
+        <!-- ================================================= -->
+        <!-- TICKET-ADV157 : Checkstyle Static Analysis -->
+        <!-- Fail build on Checkstyle violations -->
+        <!-- ================================================= -->
+
+        <plugin>
+
+            <groupId>org.apache.maven.plugins</groupId>
+
+            <artifactId>maven-checkstyle-plugin</artifactId>
+
+            <version>3.6.0</version>
+
+
+            <executions>
+
+
+                <execution>
+
+                    <id>checkstyle-validation</id>
+
+                    <phase>verify</phase>
+
+
+                    <goals>
+
+                        <goal>check</goal>
+
+                    </goals>
+
+
+                    <configuration>
+
+
+                        <configLocation>
+                            checkstyle.xml
+                        </configLocation>
+
+
+                        <encoding>
+                            UTF-8
+                        </encoding>
+
+
+                        <consoleOutput>
+                            true
+                        </consoleOutput>
+
+
+                        <failsOnError>
+                            true
+                        </failsOnError>
+
+
+                    </configuration>
+
+
+                </execution>
+
+
+            </executions>
+
+
+        </plugin>
+
+
+    </plugins>
+
+
+</build>
 </project>
