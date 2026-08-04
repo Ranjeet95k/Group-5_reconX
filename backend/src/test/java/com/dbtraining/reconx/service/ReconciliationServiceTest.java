@@ -20,13 +20,13 @@ class ReconciliationServiceTest {
     void testReconcile_returnsMatchedStatusForExactMatches() {
         ReconciliationEngine engine = new ReconciliationEngine();
 
-        List<TradeType> internal = List.of(equity("TRD-1", "100.00", "10"));
-        List<TradeType> external = List.of(equity("TRD-1", "100.00", "10"));
+        List<TradeType> internal = List.of(equity("EQU-20260603-0001", "100.00", "10"));
+        List<TradeType> external = List.of(equity("EQU-20260603-0001", "100.00", "10"));
 
         List<ReconResult> results = engine.reconcile(internal, external, ReconciliationRule.EXACT);
 
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).tradeRef()).isEqualTo("TRD-1");
+        assertThat(results.get(0).tradeRef()).isEqualTo("EQU-20260603-0001");
         assertThat(results.get(0).status()).isEqualTo(ReconResult.Status.MATCHED);
     }
 
