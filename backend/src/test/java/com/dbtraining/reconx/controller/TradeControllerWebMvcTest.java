@@ -2,6 +2,9 @@ package com.dbtraining.reconx.controller;
 
 import com.dbtraining.reconx.dto.TradeRequest;
 import com.dbtraining.reconx.dto.TradeResponse;
+import com.dbtraining.reconx.repository.entity.Counterparty;
+import com.dbtraining.reconx.repository.entity.Instrument;
+import com.dbtraining.reconx.repository.entity.Trade;
 import com.dbtraining.reconx.service.TradeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -18,6 +22,7 @@ import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -51,22 +56,31 @@ class TradeControllerWebMvcTest {
         // (id, tradeRef, instrumentId, instrumentSymbol, counterpartyId, counterpartyName,
         //  assetClass, side, quantity, price, tradeDate, status, createdAt, modifiedAt).
         Instant now = Instant.now();
-        when(tradeService.create(any())).thenReturn(
-                new TradeResponse(
-                        42L,
-                        "TRD-20260315-9999",
-                        1L,
-                        "SAP.DE",
-                        1L,
-                        "Apex Brokers Inc",
-                        "EQUITY",
-                        "BUY",
-                        new BigDecimal("100.0000"),
-                        new BigDecimal("245.50"),
-                        LocalDate.now(),
-                        "PENDING",
-                        now,
-                        now));
+
+        Trade trade = new Trade();
+        trade.setTradeRef("TRD-20260315-9999");
+        trade.setAssetClass("EQUITY");
+        trade.setSide("BUY");
+        trade.setQuantity(new BigDecimal("100.0000"));
+        trade.setPrice(new BigDecimal("245.50"));
+        trade.setTradeDate(LocalDate.now());
+        trade.setStatus("PENDING");
+
+        Instrument instrument = new Instrument();
+        ReflectionTestUtils.setField(instrument, "id", 1L);
+        ReflectionTestUtils.setField(instrument, "symbol", "SAP.DE");
+        trade.setInstrument(instrument);
+
+        Counterparty counterparty = new Counterparty();
+        ReflectionTestUtils.setField(counterparty, "id", 1L);
+        ReflectionTestUtils.setField(counterparty, "name", "Apex Brokers Inc");
+        trade.setCounterparty(counterparty);
+
+        ReflectionTestUtils.setField(trade, "id", 42L);
+        ReflectionTestUtils.setField(trade, "createdAt", now);
+        ReflectionTestUtils.setField(trade, "modifiedAt", now);
+
+        when(tradeService.create(any(TradeRequest.class), anyString())).thenReturn(trade);
 
         mockMvc.perform(post("/api/v1/trades")
                         .contentType(MediaType.APPLICATION_JSON)
