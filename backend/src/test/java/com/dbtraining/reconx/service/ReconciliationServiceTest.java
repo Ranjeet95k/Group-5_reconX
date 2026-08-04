@@ -1,8 +1,8 @@
 package com.dbtraining.reconx.service;
 
-import com.dbtraining.reconx.model.ReconResult;
-import com.dbtraining.reconx.model.Trade;
-import com.dbtraining.reconx.repository.ReconResultRepository;
+import com.dbtraining.reconx.dto.ReconResult;
+import com.dbtraining.reconx.repository.ReconBreakRepository;
+import com.dbtraining.reconx.repository.entity.Trade;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -19,7 +19,7 @@ class ReconciliationServiceTest {
     @Test
     void testReconcile_savesResultWithMatchedStatus() {
         // given
-        ReconResultRepository repo = mock(ReconResultRepository.class);
+        ReconBreakRepository repo = mock(ReconBreakRepository.class);
         ReconciliationEngine engine = new ReconciliationEngine();
         ReconciliationService svc = new ReconciliationService(engine, repo);
 

@@ -61,9 +61,9 @@
 
             <column name="actor" type="VARCHAR(100)"/>
 
-            <column name="before_state" type="CLOB"/>
+            <column name="before_state" type="VARCHAR(4000)"/>
 
-            <column name="after_state" type="CLOB"/>
+            <column name="after_state" type="VARCHAR(4000)"/>
 
         </createTable>
 

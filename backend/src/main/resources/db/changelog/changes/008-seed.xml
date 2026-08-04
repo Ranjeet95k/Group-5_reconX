@@ -26,9 +26,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
 
-
     <changeSet id="008-seed-data" author="prerana" context="dev,test">
-
         <preConditions onFail="MARK_RAN">
             <and>
                 <dbms type="postgresql"/>
@@ -38,10 +36,8 @@
             </and>
         </preConditions>
 
-
-        <!-- Seed 10 counterparties -->
         <sql>
-
+            -- Seed 10 counterparties
             INSERT INTO counterparties
             (name, lei_code, region)
             VALUES
@@ -56,9 +52,7 @@
             ('Fjord Capital Partners','5493001ABCDE12345009','EMEA'),
             ('Granite Hill Brokers','5493001ABCDE12345010','NAMR');
 
-
-            <!-- 5 fixed instruments -->
-
+            -- 5 fixed instruments
             INSERT INTO instruments
             (
                 symbol,
@@ -75,9 +69,7 @@
             ('XAU','Gold','COMMODITY','USD',NULL,'{"unit":"ounce"}'),
             ('CL_FUT','WTI Oil','DERIVATIVE','USD',NULL,'{"type":"future"}');
 
-
-            <!-- 45 generated instruments -->
-
+            -- 45 generated instruments
             INSERT INTO instruments
             (
                 symbol,
@@ -86,7 +78,6 @@
                 currency,
                 metadata
             )
-
             SELECT
                 'GEN'||LPAD(n::TEXT,4,'0'),
                 'Generated Instrument '||n,
@@ -97,7 +88,6 @@
                     'COMMODITY',
                     'DERIVATIVE'
                 ])[1+(n%5)],
-
                 (ARRAY[
                     'USD',
                     'EUR',
@@ -105,17 +95,12 @@
                     'JPY',
                     'CHF'
                 ])[1+(n%5)],
-
                 jsonb_build_object(
                     'generated',true
                 )
-
             FROM generate_series(1,45) n;
 
-
-
-            <!-- 500 trades -->
-
+            -- 500 trades
             INSERT INTO trades
             (
                 trade_ref,
@@ -126,39 +111,22 @@
                 trade_date,
                 status
             )
-
             SELECT
-
                 'TRD-2026-'||LPAD(n::TEXT,6,'0'),
-
                 1+(n%50),
-
                 1+(n%10),
-
                 ROUND((100 + n * 10.25)::numeric,4),
-
-ROUND((10 + n * 1.75)::numeric,4),
-
-                DATE '2026-04-01'
-                +(n%120)*INTERVAL '1 day',
-
+                ROUND((10 + n * 1.75)::numeric,4),
+                DATE '2026-04-01' + (n%120)*INTERVAL '1 day',
                 (ARRAY[
                     'PENDING',
                     'MATCHED',
                     'UNMATCHED',
                     'DISPUTED'
-                ])
-                [1+(n%4)]
-
+                ])[1+(n%4)]
             FROM generate_series(1,500) n;
-
-
         </sql>
-
-
-            http://www.liquibase.org/xml/ns/dbchangelog
-            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
-
+    </changeSet>
 
     <!-- Counterparties seed -->
     <changeSet 
@@ -173,29 +141,21 @@ ROUND((10 + n * 1.75)::numeric,4),
             </sqlCheck>
         </preConditions>
 
-
         <loadData 
             file="data/counterparties.csv"
             tableName="counterparties"
             separator=","
             relativeToChangelogFile="true">
-
             <column name="id" type="NUMERIC"/>
             <column name="name" type="STRING"/>
             <column name="lei_code" type="STRING"/>
             <column name="region" type="STRING"/>
-
         </loadData>
-
 
         <rollback>
             <sql>DELETE FROM counterparties;</sql>
         </rollback>
-
     </changeSet>
-
-
-
 
     <!-- Instruments seed -->
     <changeSet 
@@ -210,38 +170,29 @@ ROUND((10 + n * 1.75)::numeric,4),
             </sqlCheck>
         </preConditions>
 
-
         <loadData 
             file="data/instruments.csv"
             tableName="instruments"
             separator=","
             relativeToChangelogFile="true">
-
             <column name="id" type="NUMERIC"/>
             <column name="symbol" type="STRING"/>
             <column name="name" type="STRING"/>
             <column name="asset_class" type="STRING"/>
             <column name="currency" type="STRING"/>
             <column name="isin" type="STRING"/>
-
         </loadData>
-
 
         <rollback>
             <sql>DELETE FROM instruments;</sql>
         </rollback>
-
     </changeSet>
-
-
-
 
     <!-- Users seed -->
     <changeSet 
             id="008-seed-users"
             author="trainer"
             context="dev,test">
-
 
         <!-- TICKET-ADV014: Prevent duplicate user inserts -->
         <preConditions onFail="MARK_RAN">
@@ -250,57 +201,39 @@ ROUND((10 + n * 1.75)::numeric,4),
             </sqlCheck>
         </preConditions>
 
-
         <insert tableName="users">
-
             <column name="email" value="admin@db.com"/>
             <column name="password_hash"
                     value="$2y$10$L9iP3BfsBS2LbVJRfc86TuWnJvP.AohjX3PNLwdtjlZfyB7YSp87C"/>
             <column name="role" value="ADMIN"/>
-
         </insert>
 
-
         <insert tableName="users">
-
             <column name="email" value="trader@db.com"/>
             <column name="password_hash"
                     value="$2y$10$LIpkayi0QDWyVguPtEQbkOATM7PTnMKFDNq47K92TUx2LHTBFQf1i"/>
             <column name="role" value="TRADER"/>
-
         </insert>
 
-
         <insert tableName="users">
-
             <column name="email" value="viewer@db.com"/>
             <column name="password_hash"
                     value="$2y$10$gC8J5Tzr15p4V6BgbbEFGOEb4VWM4YUOAdKEeyFlXtEvYolYblCVC"/>
             <column name="role" value="VIEWER"/>
-
         </insert>
 
-
         <insert tableName="users">
-
             <column name="email" value="recon@db.com"/>
             <column name="password_hash"
                     value="$2y$10$UVYhlvPX38zSdPhY6bz4ee453bh6gXp9guhAfV5IU2SjcWPm0eWKq"/>
             <column name="role" value="RECON_ANALYST"/>
-
         </insert>
-
 
         <rollback>
             <sql>
-                DELETE FROM trades;
-                DELETE FROM instruments;
-                DELETE FROM counterparties;
+                DELETE FROM users;
             </sql>
         </rollback>
-
-
     </changeSet>
-
 
 </databaseChangeLog>

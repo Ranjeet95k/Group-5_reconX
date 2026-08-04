@@ -1,7 +1,13 @@
 package com.dbtraining.reconx.repository.entity;
 
-import jakarta.persistence.*;
 import java.time.Instant;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 /**
  * TICKET-ADV132 / ADV137 — Append-only audit row written by AuditEventConsumer.
@@ -30,9 +36,6 @@ public class AuditLogEntry {
     @Column(length = 100)
     private String actor;
 
-    // No @Lob — Hibernate 6 + Postgres treats @Lob String as OID column,
-    // but Liquibase translates CLOB to TEXT. columnDefinition keeps both DBs
-    // happy (H2 accepts TEXT in Postgres mode, Postgres uses it natively).
     @Column(name = "before_state", columnDefinition = "TEXT")
     private String beforeState;
 
@@ -52,12 +55,16 @@ public class AuditLogEntry {
         this.afterState = after;
     }
 
-    public Long getId()              { return id; }
-    public String getEventId()       { return eventId; }
-    public String getTradeRef()      { return tradeRef; }
-    public String getEventType()     { return eventType; }
+    public Long getId()               { return id; }
+    public String getEventId()        { return eventId; }
+    public String getTradeRef()       { return tradeRef; }
+    public String getEventType()      { return eventType; }
     public Instant getEventTimestamp(){ return eventTimestamp; }
-    public String getActor()         { return actor; }
-    public String getBeforeState()   { return beforeState; }
-    public String getAfterState()    { return afterState; }
+    public String getActor()          { return actor; }
+    public String getBeforeState()    { return beforeState; }
+    public String getAfterState()     { return afterState; }
+
+    // Aliases required by TradeAggregator
+    public String getOperation()      { return eventType; }
+    public String getAfterData()       { return afterState; }
 }
