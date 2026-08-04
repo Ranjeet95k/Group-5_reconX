@@ -37,7 +37,6 @@ export const options = {
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8081';
 
 
-
 export function setup() {
 
     const loginResponse = http.post(
@@ -125,7 +124,6 @@ export default function (data) {
         }
 
     );
-
 
 
     check(response, {
