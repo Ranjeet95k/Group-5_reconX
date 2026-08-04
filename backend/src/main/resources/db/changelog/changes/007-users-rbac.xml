@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ============================================================================
+ TICKET-ADV074 / ADV014 — RBAC: users table + preconditions
+
+ WHAT:
+        users table for JWT authentication and role management.
+
+ HOW:
+        CREATE TABLE changeset protected with Liquibase preConditions.
+
+ WHY:
+        Re-running migrations on existing databases must not fail.
+        Existing users table is marked as already handled.
+
+ OBSERVE:
+        First run creates users table.
+        Second run succeeds without duplicate table errors.
+ ============================================================================
+-->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+
+    <changeSet id="007-create-users" author="trainer">
+
+        <!-- TICKET-ADV014: Skip creation if users table already exists -->
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+
+
+        <createTable tableName="users">
+
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+
+            <column name="email" type="VARCHAR(120)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="password_hash" type="VARCHAR(120)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="enabled" type="BOOLEAN"
+                    defaultValueBoolean="true"/>
+
+            <column name="created_at" type="TIMESTAMP"
+                    defaultValueComputed="CURRENT_TIMESTAMP"/>
+
+        </createTable>
+
+
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+
+
+    </changeSet>
+
+
+</databaseChangeLog>

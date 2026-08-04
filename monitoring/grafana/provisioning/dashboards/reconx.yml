@@ -1,0 +1,13 @@
+# TICKET-ADV143 — Grafana dashboard provisioning
+apiVersion: 1
+
+providers:
+  - name: reconx
+    orgId: 1
+    folder: 'ReconX'
+    type: file
+    disableDeletion: false
+    editable: true
+    updateIntervalSeconds: 30
+    options:
+      path: /etc/grafana/provisioning/dashboards
