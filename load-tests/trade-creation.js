@@ -4,20 +4,23 @@ import { check, sleep } from 'k6';
 
 export const options = {
 
-    stages: [
-        {
-            duration: '10s',
-            target: 200
-        },
-        {
-            duration: '60s',
-            target: 200
-        },
-        {
-            duration: '10s',
-            target: 0
+    // ADV158:
+    // 200 concurrent users for 60 seconds
+
+    scenarios: {
+
+        trade_creation_load: {
+
+            executor: 'constant-vus',
+
+            vus: 200,
+
+            duration: '60s'
+
         }
-    ],
+
+    },
+
 
     thresholds: {
 
@@ -34,23 +37,37 @@ export const options = {
 };
 
 
+
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8081';
 
 
 
-export function setup() {
+export default function () {
 
-    const loginResponse = http.post(
 
-        `${BASE_URL}/api/auth/login`,
+    const payload = JSON.stringify({
 
-        JSON.stringify({
+        tradeRef: `K6-${__VU}-${__ITER}`,
 
-            email: "trader@db.com",
+        instrumentSymbol: "AAPL",
 
-            password: "trader123"
+        quantity: 100,
 
-        }),
+        price: 150.50,
+
+        tradeDate: "2026-08-04",
+
+        counterpartyLei: "5493001KJTIIGC8Y1R12"
+
+    });
+
+
+
+    const response = http.post(
+
+        `${BASE_URL}/api/v1/trades`,
+
+        payload,
 
         {
 
@@ -66,71 +83,10 @@ export function setup() {
     );
 
 
-    return {
-
-        token:
-        loginResponse.json('accessToken')
-
-    };
-
-}
-
-
-
-export default function (data) {
-
-
-    const tradePayload = JSON.stringify({
-
-        tradeRef:
-        `K6-${__VU}-${__ITER}`,
-
-        instrumentSymbol:
-        "SAP.DE",
-
-        counterpartyLei:
-        "5493001ABCDE12345001",
-
-        quantity:
-        100,
-
-        price:
-        250.50,
-
-        tradeDate:
-        "2026-06-02"
-
-    });
-
-
-
-    const response = http.post(
-
-        `${BASE_URL}/api/v1/trades`,
-
-        tradePayload,
-
-        {
-
-            headers: {
-
-                'Content-Type':
-                'application/json',
-
-                'Authorization':
-                `Bearer ${data.token}`
-
-            }
-
-        }
-
-    );
-
-
 
     check(response, {
 
-        "trade created":
+        'trade creation successful':
         (r) => r.status === 200 || r.status === 201
 
     });
