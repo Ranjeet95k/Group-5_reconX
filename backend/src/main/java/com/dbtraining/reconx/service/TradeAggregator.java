@@ -1,13 +1,16 @@
 package com.dbtraining.reconx.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.dbtraining.reconx.dto.TradeEvent;
 import com.dbtraining.reconx.repository.AuditLogRepository;
 import com.dbtraining.reconx.repository.entity.AuditLogEntry;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * ============================================================================
@@ -16,7 +19,7 @@ import java.util.Optional;
  * WHAT:    Folds every audit event for a trade (stored by AuditEventConsumer)
  *          into the current state, recreating the trade's snapshot without
  *          touching the `trades` table.
- * HOW:     Reads AuditLogEntry rows ordered by occurredAt ASC and applies
+ * HOW:     Reads AuditLogEntry rows ordered by eventTimestamp ASC and applies
  *          events sequentially:
  *            TRADE_CREATED  → state = afterData
  *            TRADE_UPDATED  → state = afterData
@@ -32,7 +35,7 @@ import java.util.Optional;
  *          updated snapshot. Cancel the trade, call rebuild again — returns
  *          Optional.empty(). The `trades` table was never consulted.
  *
- * GOTCHA:  Order by occurredAt (the Kafka event timestamp), NOT by eventId.
+ * GOTCHA:  Order by eventTimestamp (the Kafka event timestamp), NOT by eventId.
  *          UUIDs (v4) are random — ordering by them gives a random sequence
  *          and the fold will produce garbage state.
  * ============================================================================
@@ -41,9 +44,11 @@ import java.util.Optional;
 public class TradeAggregator {
 
     private final AuditLogRepository auditRepo;
+    private final ObjectMapper objectMapper;
 
-    public TradeAggregator(AuditLogRepository auditRepo) {
+    public TradeAggregator(AuditLogRepository auditRepo, ObjectMapper objectMapper) {
         this.auditRepo = auditRepo;
+        this.objectMapper = objectMapper;
     }
 
     /**
@@ -54,7 +59,7 @@ public class TradeAggregator {
      *         exist or the trade was cancelled
      */
     public Optional<JsonNode> rebuild(String tradeRef) {
-        List<AuditLogEntry> events = auditRepo.findByTradeRefOrderByOccurredAtAsc(tradeRef);
+        List<AuditLogEntry> events = auditRepo.findByTradeRefOrderByEventTimestampAsc(tradeRef);
 
         if (events.isEmpty()) {
             return Optional.empty();
@@ -64,11 +69,22 @@ public class TradeAggregator {
 
         for (AuditLogEntry e : events) {
             switch (TradeEvent.EventType.valueOf(e.getOperation())) {
-                case TRADE_CREATED, TRADE_UPDATED -> state = e.getAfterData();
+                case TRADE_CREATED, TRADE_UPDATED -> state = parseJson(e.getAfterData());
                 case TRADE_CANCELLED              -> state = null;
             }
         }
 
         return Optional.ofNullable(state);
+    }
+
+    private JsonNode parseJson(String jsonString) {
+        if (jsonString == null || jsonString.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readTree(jsonString);
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Failed to parse audit log JSON payload", ex);
+        }
     }
 }

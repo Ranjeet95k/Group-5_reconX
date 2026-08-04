@@ -9,10 +9,13 @@
           rollback by tag straightforward (ADV013).
  OBSERVE: On first boot, Liquibase creates databasechangelog + databasechangeloglock
           tables, then applies every included changeset in declared order.
+
+ NOTE (Day 9): 009-dlq.xml is appended for TICKET-ADV136 — it creates the
+          dlq_messages table the DlqMessage entity validates against. This
+          master file is part of the day9 overlay so the include lands when you
+          copy day9-solved-files/backend/ over backend/.
  ============================================================================
 -->
-
-
 <databaseChangeLog
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -27,5 +30,6 @@
     <include file="changes/006-audit-and-recon.xml" relativeToChangelogFile="true"/>
     <include file="changes/007-users-rbac.xml"    relativeToChangelogFile="true"/>
     <include file="changes/008-seed.xml"          relativeToChangelogFile="true"/>
+    <include file="changes/009-dlq-schema.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
