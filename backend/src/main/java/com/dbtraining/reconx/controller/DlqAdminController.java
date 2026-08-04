@@ -1,38 +1,24 @@
 package com.dbtraining.reconx.controller;
 
-import com.dbtraining.reconx.kafka.TradeEventProducer;
-import com.dbtraining.reconx.model.DlqMessage;
-import com.dbtraining.reconx.repository.DlqMessageRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * ============================================================================
- * TICKET-ADV136 — DLQ Admin Controller (part 2 of 2)
- *
- * WHAT:    REST endpoints for inspecting and replaying quarantined DLQ messages.
- * HOW:     GET  /api/v1/admin/dlq          — list all unresolved DLQ rows
- *          POST /api/v1/admin/dlq/replay   — re-publish one event by eventId
- *          (dryRun=true returns what would be replayed without doing it)
- * WHY:     ADV134's DLQ is the quarantine; this endpoint is the escape hatch.
- *          One-at-a-time replay by eventId prevents the bulk-replay anti-pattern
- *          (replaying everything while the bug is still live just refills the DLQ).
- *          The ADMIN role gate echoes the RBAC contract from Day 5.
- * OBSERVE: POST /api/v1/admin/dlq/replay?eventId=<uuid>&dryRun=true
- *          returns the would-be payload without sending it.
- *          POST without dryRun re-publishes via TradeEventProducer and deletes
- *          the DLQ row; GET /api/v1/admin/dlq confirms it's gone.
- *
- * GOTCHA:  The replay endpoint MUST publish to `trade-events` (via TradeEventProducer),
- *          NOT directly to `trade-events-dlq`. Replaying to the DLQ would just
- *          re-quarantine the same message in an infinite loop.
- * ============================================================================
- */
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dbtraining.reconx.dto.TradeEvent;
+import com.dbtraining.reconx.kafka.TradeEventProducer;
+import com.dbtraining.reconx.repository.DlqMessageRepository;
+import com.dbtraining.reconx.repository.entity.DlqMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @RestController
 @RequestMapping("/api/v1/admin/dlq")
 @PreAuthorize("hasRole('ADMIN')")
@@ -40,10 +26,12 @@ public class DlqAdminController {
 
     private final DlqMessageRepository repo;
     private final TradeEventProducer producer;
+    private final ObjectMapper objectMapper;
 
-    public DlqAdminController(DlqMessageRepository repo, TradeEventProducer producer) {
+    public DlqAdminController(DlqMessageRepository repo, TradeEventProducer producer, ObjectMapper objectMapper) {
         this.repo = repo;
         this.producer = producer;
+        this.objectMapper = objectMapper;
     }
 
     @GetMapping
@@ -68,7 +56,13 @@ public class DlqAdminController {
             ));
         }
 
-        producer.publish(msg.getPayload());
+        try {
+            TradeEvent event = objectMapper.readValue(msg.getPayload(), TradeEvent.class);
+            producer.publish(event);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Failed to deserialize DLQ message payload for eventId: " + eventId, e);
+        }
+        
         repo.delete(msg);
 
         return ResponseEntity.ok(Map.of(
