@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ============================================================================
+ TICKET-ADV040 — DLQ Messages Schema Definition
+
+ WHAT:
+        Creates the database table for storing Dead Letter Queue (DLQ) messages.
+
+ HOW:
+        Defines the schema for dlq_messages with unique index on event_id.
+
+ WHY:
+        Allows administrative inspection and reprocessing of failed Kafka trade events.
+ ============================================================================
+-->
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.27.xsd">
+
+    <changeSet id="009-create-dlq-messages" author="dev">
+        <createTable tableName="dlq_messages">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="event_id" type="UUID">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="trade_ref" type="VARCHAR(30)"/>
+            <column name="topic" type="VARCHAR(255)"/>
+            <column name="original_topic" type="VARCHAR(255)"/>
+            <column name="payload" type="VARCHAR(4000)"/>
+            <column name="error_reason" type="VARCHAR(4000)"/>
+            <column name="failed_at" type="TIMESTAMP"/>
+        </createTable>
+
+        <createIndex indexName="idx_dlq_messages_event_id" tableName="dlq_messages">
+            <column name="event_id"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

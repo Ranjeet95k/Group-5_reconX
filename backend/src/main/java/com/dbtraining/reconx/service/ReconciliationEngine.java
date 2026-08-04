@@ -125,18 +125,6 @@ public class ReconciliationEngine {
                 );
     }
 
-    public List<ReconResult> reconcile(List<TradeType> internal,List<TradeType> external,ReconciliationRule rule) {
-        if (internal == null || internal.isEmpty()) return List.of();
-
-        Map<String, TradeType> externalByRef = (external == null ? List.<TradeType>of() : external)
-                .stream()
-                .collect(Collectors.toMap(t -> t.tradeRef().value(), Function.identity(), (a, b) -> a));
-
-        return internal.parallelStream()
-                .map(in -> matchOne(in, externalByRef.get(in.tradeRef().value()), rule))
-                .toList();
-        }
-
 
     private ReconResult matchOne(
             TradeType internal,
@@ -215,5 +203,4 @@ public class ReconciliationEngine {
         };
     }
 
-    
 }
