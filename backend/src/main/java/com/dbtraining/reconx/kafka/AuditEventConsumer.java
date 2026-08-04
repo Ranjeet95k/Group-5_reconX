@@ -1,30 +1,14 @@
 package com.dbtraining.reconx.kafka;
 
-import com.dbtraining.reconx.dto.TradeEvent;
-import com.dbtraining.reconx.repository.AuditLogRepository;
-import com.dbtraining.reconx.repository.entity.AuditLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-/**
- * ============================================================================
- * TICKET-ADV132 — AuditEventConsumer
- *
- * WHAT:    Persists every TradeEvent flowing through `trade-events` into the
- *          audit_log table.
- * HOW:     @KafkaListener on `trade-events`, groupId `audit-service`. Maps
- *          the TradeEvent DTO -> AuditLogEntry entity -> repo.save(...).
- * WHY:     Together with ADV137 this powers event-sourced replay — every
- *          domain change is captured immutably.
- * OBSERVE: After a POST /api/v1/trades, query audit_log -> one new row with
- *          the same eventId.
- *
- * HINT:    The consumer is on a DIFFERENT groupId from ReconciliationConsumer
- *          so Kafka delivers each message to both groups independently.
- * ============================================================================
- */
+import com.dbtraining.reconx.dto.TradeEvent;
+import com.dbtraining.reconx.repository.AuditLogRepository;
+import com.dbtraining.reconx.repository.entity.AuditLogEntry;
+
 @Component
 public class AuditEventConsumer {
 
@@ -37,14 +21,17 @@ public class AuditEventConsumer {
 
     @KafkaListener(topics = "trade-events", groupId = "audit-service")
     public void onTradeEvent(TradeEvent e) {
+        String beforeStr = e.before() != null ? e.before().toString() : null;
+        String afterStr = e.after() != null ? e.after().toString() : null;
+
         repo.save(new AuditLogEntry(
                 e.eventId().toString(),
                 e.tradeRef(),
                 e.eventType().name(),
                 e.timestamp(),
                 e.actor(),
-                e.before(),
-                e.after()));
+                beforeStr,
+                afterStr));
         log.debug("Audit row persisted for eventId={}", e.eventId());
     }
 }
