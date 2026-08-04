@@ -1,6 +1,7 @@
 package com.dbtraining.reconx.model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * ============================================================================
@@ -42,12 +43,22 @@ public enum ReconciliationRule {
      */
     public boolean matches(BigDecimal internalPrice, BigDecimal internalQty,
                            BigDecimal externalPrice, BigDecimal externalQty) {
-        // TODO(TICKET-ADV026):
-        //   1. Compute |internalPrice - externalPrice| as priceDiff.
-        //   2. priceDiffPct = priceDiff / internalPrice (guard divide-by-zero).
-        //   3. qtyDiff = |internalQty - externalQty|.
-        //   4. Return true iff priceDiffPct <= priceTolerancePct AND
-        //      qtyDiff <= qtyToleranceAbs.
-        throw new UnsupportedOperationException("TICKET-ADV026");
+        BigDecimal priceDiff = internalPrice.subtract(externalPrice).abs();
+        BigDecimal priceBase = internalPrice.abs();
+        if (priceBase.compareTo(BigDecimal.ZERO) == 0) {
+            priceBase = externalPrice.abs();
+        }
+
+        BigDecimal priceDiffPct = BigDecimal.ZERO;
+        if (priceBase.compareTo(BigDecimal.ZERO) > 0) {
+            priceDiffPct = priceDiff
+                    .divide(priceBase, 10, RoundingMode.HALF_UP);
+        }
+
+        BigDecimal qtyDiff = internalQty.subtract(externalQty).abs();
+
+        boolean priceWithinTolerance = priceDiffPct.compareTo(priceTolerancePct) <= 0;
+        boolean qtyWithinTolerance = qtyDiff.compareTo(qtyToleranceAbs) <= 0;
+        return priceWithinTolerance && qtyWithinTolerance;
     }
 }
